@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+}
+
+enum ActivationPurpose {
+  OWNER_ACTIVATION
+  STAFF_INVITE
+  PASSWORD_RESET
+}
+
+model Shop {
+  id          String       @id @default(cuid())
+  name        String
+  category    String
+  status      TenantStatus @default(PENDING_APPROVAL)
+  ownerName   String
+  ownerEmail  String       @unique
+  ownerPhone  String
+  users       User[]
+  items       Item[]
+  purchases   Purchase[]
+  roles       StaffRole[]
+  tokens      ActivationToken[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model User {
+  id           String      @id @default(cuid())
+  shopId       String?
+  shop         Shop?       @relation(fields: [shopId], references: [id])
+  name         String
+  email        String      @unique
+  passwordHash String?
+  isSuperadmin Boolean     @default(false)
+  status       UserStatus  @default(INVITED)
+  roleId       String?
+  role         StaffRole?  @relation(fields: [roleId], references: [id])
+  purchases    Purchase[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Permission {
+  id          String                @id @default(cuid())
+  key         String                @unique
+  description String?
+  roles       StaffRolePermission[]
+  createdAt   DateTime              @default(now())
+}
+
+model StaffRole {
+  id          String                @id @default(cuid())
+  shopId      String?
+  shop        Shop?                 @relation(fields: [shopId], references: [id])
+  name        String
+  description String?
+  permissions StaffRolePermission[]
+  users       User[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@unique([shopId, name])
+}
+
+model StaffRolePermission {
+  roleId       String
+  permissionId String
+  role         StaffRole  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Item {
+  id                String         @id @default(cuid())
+  shopId            String
+  shop              Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name              String
+  category          String
+  price             Decimal        @db.Decimal(12, 2)
+  currentStock      Int
+  lowStockThreshold Int
+  purchaseItems     PurchaseItem[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([shopId, name])
+}
+
+model Purchase {
+  id            String         @id @default(cuid())
+  shopId        String
+  shop          Shop           @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  createdById   String
+  createdBy     User           @relation(fields: [createdById], references: [id])
+  paymentMethod PaymentMethod
+  subtotal      Decimal        @db.Decimal(12, 2)
+  discount      Decimal        @default(0) @db.Decimal(12, 2)
+  total         Decimal        @db.Decimal(12, 2)
+  items         PurchaseItem[]
+  createdAt     DateTime       @default(now())
+
+  @@index([shopId, createdAt])
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  itemId     String
+  item       Item     @relation(fields: [itemId], references: [id])
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(12, 2)
+  lineTotal  Decimal  @db.Decimal(12, 2)
+}
+
+model ActivationToken {
+  id        String            @id @default(cuid())
+  shopId    String?
+  shop      Shop?             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  email     String
+  tokenHash String            @unique
+  purpose   ActivationPurpose
+  usedAt    DateTime?
+  expiresAt DateTime
+  createdAt DateTime          @default(now())
+}

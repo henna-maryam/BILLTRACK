@@ -1,0 +1,25 @@
+{
+  "name": "@billtrack/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "tsx watch src/server.ts",
+    "lint": "tsc --noEmit",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@billtrack/auth": "workspace:*",
+    "@billtrack/db": "workspace:*",
+    "@billtrack/shared": "workspace:*",
+    "@fastify/cors": "^10.0.2",
+    "fastify": "^5.1.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
