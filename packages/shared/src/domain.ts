@@ -1,5 +1,6 @@
 export const tenantStatuses = [
   "PENDING_APPROVAL",
+  "APPROVED_PENDING_ACTIVATION",
   "ACTIVE",
   "SUSPENDED",
   "REJECTED",

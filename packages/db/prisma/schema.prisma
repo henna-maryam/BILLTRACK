@@ -9,6 +9,7 @@ datasource db {
 
 enum TenantStatus {
   PENDING_APPROVAL
+  APPROVED_PENDING_ACTIVATION
   ACTIVE
   SUSPENDED
   REJECTED

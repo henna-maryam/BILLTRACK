@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "BillTrack",
   description: "Mobile-first shop billing and stock management.",
+  applicationName: "BillTrack",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#111827",
 };
 
 export default function RootLayout({

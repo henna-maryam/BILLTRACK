@@ -1,4 +1,4 @@
-import { Button } from "@billtrack/ui";
+import { RegistrationForm } from "../components/registration-form";
 
 export default function HomePage() {
   return (
@@ -11,14 +11,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <form className="registration">
-        <input name="name" placeholder="Owner name" />
-        <input name="shopName" placeholder="Shop name" />
-        <input name="email" placeholder="Email" type="email" />
-        <input name="phone" placeholder="Phone" />
-        <input name="shopCategory" placeholder="Shop category" />
-        <Button type="submit">Request shop approval</Button>
-      </form>
+      <RegistrationForm />
     </main>
   );
 }
